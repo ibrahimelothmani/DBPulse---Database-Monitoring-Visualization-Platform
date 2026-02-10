@@ -39,7 +39,16 @@ public class OrderItem {
 
     // Helper method to calculate subtotal
     public void calculateSubtotal() {
-        this.subtotal = this.unitPrice.multiply(new BigDecimal(this.quantity));
+        if (this.unitPrice != null && this.quantity != null) {
+            this.subtotal = this.unitPrice.multiply(new BigDecimal(this.quantity));
+        }
+    }
+
+    // Lifecycle callbacks to ensure subtotal is always calculated
+    @PrePersist
+    @PreUpdate
+    protected void onSave() {
+        calculateSubtotal();
     }
 
     // Constructor helper to set price from product
