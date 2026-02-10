@@ -1,0 +1,8 @@
+# Ignore build output
+/target
+
+
+# Ignore IDE files
+.idea
+*.iml
+

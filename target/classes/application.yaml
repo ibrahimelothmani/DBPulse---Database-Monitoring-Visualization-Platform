@@ -1,3 +1,120 @@
 spring:
   application:
-    name: DBPulse
+    name: dbpulse
+
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/DbPulse
+    username: admin
+    password: admin1234
+    driver-class-name: org.postgresql.Driver
+
+    # HikariCP Connection Pool Configuration
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 600000
+      connection-timeout: 30000
+      pool-name: HikariCP-DBPulse
+      # Enable metrics
+      register-mbeans: true
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        # Enable statistics for query metrics
+        generate_statistics: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+# Server Configuration
+server:
+  port: 8080
+  compression:
+    enabled: true
+
+# Actuator Configuration - Critical for metrics exposure
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose all endpoints including prometheus
+        include: health,info,metrics,prometheus,loggers,env
+      base-path: /actuator
+
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+
+  # Metrics Configuration
+  metrics:
+    enable:
+      # Enable all default metrics
+      jvm: true
+      process: true
+      system: true
+      tomcat: true
+      hikaricp: true
+      jdbc: true
+      logback: true
+      http: true
+
+    distribution:
+      # Percentiles for latency metrics
+      percentiles-histogram:
+        http.server.requests: true
+      # SLA boundaries
+      sla:
+        http.server.requests: 50ms,100ms,200ms,400ms,800ms,1s,2s
+
+    tags:
+      application: ${spring.application.name}
+      environment: development
+
+  # Health Indicators
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 1m
+        # Push interval (not needed as Prometheus scrapes)
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.yourcompany.dbpulse: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: DEBUG
+    io.micrometer: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Custom Application Properties (Optional)
+app:
+  metrics:
+    # Custom metric collection intervals
+    collection-interval: 60000
+    # Enable custom business metrics
+    custom-enabled: true
