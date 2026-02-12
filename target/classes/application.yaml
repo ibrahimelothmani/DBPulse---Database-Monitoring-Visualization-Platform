@@ -4,9 +4,9 @@ spring:
 
   # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/DbPulse
-    username: admin
-    password: admin1234
+    url: jdbc:postgresql://localhost:5432/dbpulse
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
     # HikariCP Connection Pool Configuration
