@@ -11,7 +11,6 @@ import com.ibrahim.DBPulse.entities.Product;
 import com.ibrahim.DBPulse.exceptions.InsufficientStockException;
 import com.ibrahim.DBPulse.exceptions.ResourceNotFoundException;
 import com.ibrahim.DBPulse.repositories.ClientRepository;
-import com.ibrahim.DBPulse.repositories.OrderItemRepository;
 import com.ibrahim.DBPulse.repositories.OrderRepository;
 import com.ibrahim.DBPulse.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
