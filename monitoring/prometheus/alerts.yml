@@ -1,0 +1,124 @@
+# Alert Rules for DBPulse Monitoring
+
+groups:
+  - name: dbpulse_application_alerts
+    interval: 30s
+    rules:
+      # High Error Rate Alert
+      - alert: HighHTTPErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "High HTTP 5xx error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # Slow HTTP Requests
+      - alert: SlowHTTPRequests
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "95th percentile of HTTP requests is slow"
+          description: "P95 latency is {{ $value }}s (threshold: 2s)"
+
+      # Application Down
+      - alert: ApplicationDown
+        expr: up{job="dbpulse-application"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "DBPulse application is down"
+          description: "The application has been down for more than 1 minute"
+
+  - name: dbpulse_business_alerts
+    interval: 60s
+    rules:
+      # Low Inventory Alert
+      - alert: LowInventoryProducts
+        expr: dbpulse_products_low_stock > 5
+        for: 10m
+        labels:
+          severity: warning
+          component: inventory
+        annotations:
+          summary: "Multiple products have low inventory"
+          description: "{{ $value }} products are below stock threshold"
+
+      # High Order Creation Failures (if we add a failure counter)
+      - alert: HighOrderCreationFailureRate
+        expr: rate(dbpulse_orders_create_seconds_count{exception!="none"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: orders
+        annotations:
+          summary: "High rate of order creation failures"
+          description: "Order failure rate is {{ $value | humanizePercentage }}"
+
+  - name: dbpulse_performance_alerts
+    interval: 30s
+    rules:
+      # Slow Database Queries (Order Creation)
+      - alert: SlowOrderCreation
+        expr: histogram_quantile(0.95, rate(dbpulse_orders_create_seconds_bucket[5m])) > 3
+        for: 5m
+        labels:
+          severity: warning
+          component: performance
+        annotations:
+          summary: "Order creation is slow"
+          description: "P95 order creation time is {{ $value }}s (threshold: 3s)"
+
+      # High JVM Memory Usage
+      - alert: HighJVMMemoryUsage
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: jvm
+        annotations:
+          summary: "JVM heap memory is critically high"
+          description: "Heap usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # High GC Time
+      - alert: HighGCTime
+        expr: rate(jvm_gc_pause_seconds_sum[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: jvm
+        annotations:
+          summary: "High garbage collection time"
+          description: "GC is taking {{ $value | humanizePercentage }} of CPU time"
+
+  - name: dbpulse_database_alerts
+    interval: 30s
+    rules:
+      # HikariCP - Connection Pool Near Exhaustion
+      - alert: ConnectionPoolNearExhaustion
+        expr: (hikaricp_connections_active / hikaricp_connections_max) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool is near exhaustion"
+          description: "{{ $value | humanizePercentage }} of connections are in use (threshold: 80%)"
+
+      # Long Connection Wait Time
+      - alert: LongConnectionWaitTime
+        expr: histogram_quantile(0.95, rate(hikaricp_connections_acquire_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Long wait time to acquire database connections"
+          description: "P95 acquire time is {{ $value }}s (threshold: 1s)"

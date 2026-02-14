@@ -1,233 +1,336 @@
 # DBPulse - Database Monitoring & Visualization Platform
 
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)
-![Prometheus](https://img.shields.io/badge/Prometheus-Latest-orange)
-![Grafana](https://img.shields.io/badge/Grafana-Latest-blue)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+[![Java](https://img.shields.io/badge/Java-21-orange)]()
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-green)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)]()
+[![Prometheus](https://img.shields.io/badge/Prometheus-2.48-red)]()
+[![Grafana](https://img.shields.io/badge/Grafana-10.2-orange)]()
+[![Docker](https://img.shields.io/badge/Docker-Compose-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
 
-A comprehensive DevOps solution for real-time database monitoring and visualization using Spring Boot, Prometheus, and Grafana. This project demonstrates production-grade observability practices for database performance metrics, connection pool monitoring, and query analytics.
+> **Production-ready database monitoring and observability platform** built with Spring Boot, Prometheus, and Grafana. Features a functional e-commerce backend that generates realistic database activity and meaningful metrics.
 
-## 🎯 Project Overview
+---
 
-DBPulse provides a complete monitoring stack that collects, stores, and visualizes critical database metrics in real-time. It helps developers and DevOps teams identify performance bottlenecks, track resource utilization, and maintain database health in production environments.
+## 🎯 What Is DBPulse?
 
-## ✨ Features
+DBPulse is more than just a monitoring setup - it's a **complete observability platform** that demonstrates real-world monitoring practices through a functional e-commerce application.
 
-- **Real-time Metrics Collection**: Automated collection of database performance metrics
-- **Connection Pool Monitoring**: Track active, idle, and waiting connections
-- **Query Performance Analysis**: Monitor query execution times and identify slow queries
-- **Transaction Tracking**: Measure transaction counts and duration
-- **Resource Utilization**: CPU, memory, and disk usage monitoring
-- **Custom Dashboards**: Pre-configured Grafana dashboards for instant insights
-- **Alert Management**: Configurable alerts for critical thresholds
-- **Scalable Architecture**: Containerized deployment with Docker
+### Core Features
+
+- ✅ **Full E-Commerce REST API** - Clients, Products, Orders management
+- 📊 **Custom Business Metrics** - Order tracking, revenue monitoring, inventory alerts
+- 🔍 **Performance Monitoring** - @Timed annotations on critical operations
+- 💾 **Database Metrics** - Connection pool, query performance, slow query detection
+- 📈 **Grafana Dashboards** - Pre-configured visualizations for all metrics
+- 🚨 **Prometheus Alerts** - Automated monitoring with 11+ alert rules
+- 🐳 **Docker Compose** - One-command deployment of entire stack
+
+---
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐
-│  Spring Boot    │
-│  Application    │ ──► Exposes metrics at /actuator/prometheus
-└─────────────────┘
-         │
+│  Load Testing   │
+│     Script      │
+└────────┬────────┘
+         │ HTTP Requests
          ▼
-┌─────────────────┐
-│   Prometheus    │ ──► Scrapes and stores time-series data
-└─────────────────┘
-         │
+┌─────────────────────────┐
+│  Spring Boot App :8080  │
+│  - REST API             │
+│  - Custom Metrics       │
+│  - @Timed Methods       │
+└────────┬────────────────┘
+         │ /actuator/prometheus
          ▼
-┌─────────────────┐
-│    Grafana      │ ──► Visualizes metrics with dashboards
-└─────────────────┘
+┌─────────────────────────┐
+│  Prometheus :9090       │
+│  - Scrapes every 15s    │
+│  - Stores time-series   │
+│  - Evaluates alerts     │
+└────────┬────────────────┘
+         │ PromQL queries
+         ▼
+┌─────────────────────────┐
+│    Grafana :3000        │
+│  - 4 Pre-configured     │
+│    Dashboards           │
+└─────────────────────────┘
+         ▲
+         │ Queries
+┌─────────────────────────┐
+│   PostgreSQL :5432      │
+│  - Application Database │
+│  - HikariCP Pool        │
+└─────────────────────────┘
 ```
 
-## 🚀 Getting Started
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Java 17 or higher
-- Maven 3.6+
-- Docker & Docker Compose
-- Your database (PostgreSQL, MySQL, etc.)
+- **Java 21 LTS** (or higher)
+- **Docker & Docker Compose** -**Maven 3.6+** (or use included wrapper)
+- **Git**
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/dbpulse.git
-   cd dbpulse
-   ```
-
-2. **Configure database connection**
-   
-   Edit `src/main/resources/application.yml`:
-   ```yaml
-   spring:
-     datasource:
-       url: jdbc:postgresql://localhost:5432/yourdb
-       username: your_username
-       password: your_password
-   ```
-
-3. **Build the application**
-   ```bash
-   mvn clean install
-   ```
-
-4. **Start the monitoring stack**
-   ```bash
-   docker-compose up -d
-   ```
-
-5. **Run the Spring Boot application**
-   ```bash
-   mvn spring-boot:run
-   ```
-
-### Access the Services
-
-- **Spring Boot Application**: http://localhost:8080
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (default credentials: admin/admin)
-
-## 📊 Monitored Metrics
-
-### Database Metrics
-- Connection pool status (active, idle, max, min)
-- Query execution time (avg, max, percentiles)
-- Transaction rate and duration
-- Slow query count
-- Error rates and exceptions
-- Database size and growth
-
-### Application Metrics
-- JVM memory usage
-- Garbage collection statistics
-- Thread pool metrics
-- HTTP request rates
-- API endpoint performance
-
-## 🔧 Configuration
-
-### Prometheus Configuration
-
-The `prometheus.yml` file defines scraping intervals and targets:
-
-```yaml
-scrape_configs:
-  - job_name: 'spring-boot-app'
-    metrics_path: '/actuator/prometheus'
-    scrape_interval: 15s
-    static_configs:
-      - targets: ['host.docker.internal:8080']
-```
-
-### Grafana Dashboards
-
-Pre-configured dashboards are available in the `grafana/dashboards/` directory:
-- `database-overview.json` - Main database metrics
-- `connection-pool.json` - Connection pool analysis
-- `query-performance.json` - Query execution metrics
-
-## 🐳 Docker Deployment
+### 1. Clone the Repository
 
 ```bash
-# Start all services
+git clone https://github.com/yourusername/DBPulse.git
+cd DBPulse
+```
+
+### 2. Start the Stack
+
+```bash
 docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop all services
-docker-compose down
 ```
 
-## 📈 Usage Examples
+This will start:
 
-### Viewing Metrics
+- PostgreSQL database (port 5432)
+- Spring Boot application (port 8080)
+- Prometheus (port 9090)
+- Grafana (port 3000)
 
-1. Navigate to Grafana (http://localhost:3000)
-2. Add Prometheus as a data source
-3. Import the provided dashboard JSON files
-4. Start monitoring your database in real-time
+### 3. Wait for Services to Initialize
 
-### Setting Up Alerts
+```bash
+# Check all services are running
+docker-compose ps
 
-Configure alert rules in `prometheus/alerts.yml`:
-
-```yaml
-groups:
-  - name: database_alerts
-    rules:
-      - alert: HighConnectionPoolUsage
-        expr: hikaricp_connections_active / hikaricp_connections_max > 0.8
-        for: 5m
-        annotations:
-          summary: "Connection pool usage is above 80%"
+# Watch application logs
+docker-compose logs -f application
 ```
 
-## 🛠️ Tech Stack
+### 4. Generate Test Data & Metrics
 
-| Technology | Purpose |
-|-----------|---------|
-| Spring Boot | Application framework and metrics exposure |
-| Micrometer | Metrics collection and instrumentation |
-| Prometheus | Time-series database for metrics storage |
-| Grafana | Visualization and dashboarding |
-| Docker | Containerization and deployment |
-| HikariCP | Connection pool monitoring |
+```bash
+./scripts/load_test.sh
+```
+
+This creates:
+
+- 50 test clients
+- 30 products
+- 100 orders
+- 250+ read operations
+
+### 5. View Dashboards
+
+- **Application**: http://localhost:8080
+- **Swagger API**: http://localhost:8080/swagger-ui.html
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin)
+
+---
+
+## 📊 Available Metrics
+
+### Business Metrics
+
+- `dbpulse.orders.created` - Total orders created
+- `dbpulse.revenue.total` - Total revenue
+- `dbpulse.inventory.total` - Current total inventory
+- `dbpulse.clients.active` - Active client count
+- `dbpulse.products.low_stock` - Products below threshold
+
+### Performance Metrics
+
+- `dbpulse.orders.create` - Order creation duration
+- `dbpulse.clients.create/get/update` - Client operation duration
+- `dbpulse.products.create/update` - Product operation duration
+- `http_server_requests_seconds` - HTTP request metrics
+
+### JVM Metrics
+
+- `jvm_memory_used_bytes` - JVM memory usage
+- `jvm_gc_pause_seconds` - Garbage collection time
+- `jvm_threads_live` - Thread count
+
+### Database Metrics (HikariCP)
+
+- `hikaricp_connections_active` - Active connections
+- `hikaricp_connections_idle` - Idle connections
+- `hikaricp_connections_acquire_seconds` - Connection acquisition time
+
+---
+
+## 🎨 Grafana Dashboards
+
+Pre-configured dashboards available at http://localhost:3000:
+
+1. **Database Performance** - Connection pool, query times, slow queries
+2. **Application Health** - Request rate, latency, error rate, JVM metrics
+3. **Business Metrics** - Orders/min, revenue trends, inventory levels
+4. **JVM Metrics** - Heap usage, GC activity, thread count
+
+---
+
+## 🚨 Alert Rules
+
+11 pre-configured alerts in Prometheus:
+
+- High HTTP 5xx error rate (>5%)
+- Slow HTTP requests (P95 > 2s)
+- Application down
+- Low inventory products (>5 products)
+- Slow order creation (P95 > 3s)
+- High JVM memory usage (>90%)
+- High GC time
+- Connection pool near exhaustion (>80%)
+- Long connection wait time
+
+---
+
+## 🛠️ Development
+
+### Run Locally (Without Docker)
+
+1. **Start PostgreSQL**:
+
+```bash
+docker run -d -p 5432:5432 \
+  -e POSTGRES_DB=dbpulse \
+  -e POSTGRES_USER=dbpulse_user \
+  -e POSTGRES_PASSWORD=dbpulse_pass \
+  postgres:15-alpine
+```
+
+2. **Run Application**:
+
+```bash
+mvn spring-boot:run
+```
+
+3. **Access Endpoints**:
+
+- API: http://localhost:8080
+- Metrics: http://localhost:8080/actuator/prometheus
+- Swagger: http://localhost:8080/swagger-ui.html
+
+### Run Tests
+
+```bash
+mvn test
+```
+
+### Build Docker Image
+
+```bash
+docker build -t dbpulse:latest .
+```
+
+---
 
 ## 📁 Project Structure
 
 ```
-dbpulse/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/yourcompany/dbpulse/
-│   │   │       ├── config/          # Metrics configuration
-│   │   │       ├── controller/      # REST endpoints
-│   │   │       ├── repository/      # Database access
-│   │   │       └── service/         # Business logic
-│   │   └── resources/
-│   │       ├── application.yml
-│   │       └── prometheus/
-│   └── test/
-├── grafana/
-│   ├── dashboards/                  # Grafana dashboard JSON
-│   └── provisioning/                # Auto-provisioning configs
-├── prometheus/
-│   ├── prometheus.yml               # Prometheus config
-│   └── alerts.yml                   # Alert rules
-├── docker-compose.yml
+DBPulse/
+├── src/main/java/com/ibrahim/DBPulse/
+│   ├── config/          # Configuration classes (Metrics, CORS, OpenAPI, etc.)
+│   ├── controllers/     # REST API controllers
+│   ├── services/        # Business logic with @Timed annotations
+│   ├── repositories/    # JPA repositories
+│   ├── entities/        # JPA entities
+│   ├── dtos/           # Request/Response DTOs
+│   ├── mappers/        # Entity-DTO mappers
+│   └── exceptions/     # Custom exceptions
+├── monitoring/
+│   ├── prometheus/
+│   │   ├── prometheus.yml   # Prometheus configuration
+│   │   └── alerts.yml       # Alert rules
+│   └── grafana/
+│       └── provisioning/
+│           ├── datasources/ # Datasource config
+│           └── dashboards/  # Dashboard JSONs
+├── scripts/
+│   └── load_test.sh    # Load testing script
 ├── Dockerfile
-├── pom.xml
-└── README.md
+├── docker-compose.yml
+└── pom.xml
 ```
+
+---
+
+## 🎓 What You'll Learn
+
+This project teaches:
+
+### DevOps & Monitoring
+
+- Application monitoring with Prometheus
+- Metrics exposure with Spring Boot Actuator
+- Grafana dashboard creation
+- Alert rule configuration
+- Docker containerization
+- Observability best practices
+
+### Backend Development
+
+- Spring Boot application architecture
+- REST API design with DTOs
+- JPA/Hibernate operations
+- Transaction management
+- Exception handling patterns
+- Service layer design (SOLID principles)
+
+### Database Skills
+
+- Connection pool optimization (HikariCP)
+- Query performance monitoring
+- Database metrics interpretation
+- N+1 query problem solutions
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Ideas for Contributions
 
+- Add GraphQL API
+- Implement Spring Security with JWT
+- Add Redis caching with cache metrics
+- Create Kubernetes deployment files
+- Add distributed tracing with Zipkin
+- Implement message queue (RabbitMQ/Kafka)
+- Add machine learning for anomaly detection
+- Create CI/CD pipeline with GitHub Actions
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🌟 Star History
+
+If you find this project helpful, please consider giving it a star! ⭐
+
+---
+
+## 📧 Contact
+
+- **Author**: Your Name
+- **Email**: your.email@example.com
+- **GitHub**: [@yourusername](https://github.com/yourusername)
+
+---
 
 ## 🙏 Acknowledgments
 
-- Spring Boot team for the excellent actuator framework
-- Prometheus community for robust monitoring solutions
-- Grafana Labs for powerful visualization tools
+- Spring Boot team for excellent documentation
+- Prometheus & Grafana communities
+- All contributors to this project
 
-## 🗺️ Roadmap
+---
 
-- [ ] Add support for multiple database types
-- [ ] Implement custom metric collectors
-- [ ] Create mobile-responsive dashboards
-- [ ] Add machine learning-based anomaly detection
-- [ ] Integrate with popular alerting platforms (PagerDuty, Slack)
-- [ ] Develop REST API for metric queries
-- [ ] Add historical trend analysis
+**Built with ❤️ for the DevOps community**

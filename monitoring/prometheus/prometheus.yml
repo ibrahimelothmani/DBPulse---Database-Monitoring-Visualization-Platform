@@ -1,0 +1,45 @@
+# Prometheus Configuration for DBPulse Monitoring
+
+global:
+  scrape_interval: 15s          # How often to scrape targets
+  evaluation_interval: 15s      # How often to evaluate rules
+  external_labels:
+    cluster: 'dbpulse-local'
+    environment: 'development'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - 'alertmanager:9093'  # Uncomment if using Alertmanager
+
+# Load alert rules
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Scrape Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Scrape DBPulse Spring Boot Application
+  - job_name: 'dbpulse-application'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['application:8080']
+        labels:
+          application: 'dbpulse'
+          service: 'backend-api'
+          environment: 'development'
+
+  # Scrape PostgreSQL metrics (if using postgres_exporter)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+  #       labels:
+  #         application: 'dbpulse'
+  #         service: 'database'

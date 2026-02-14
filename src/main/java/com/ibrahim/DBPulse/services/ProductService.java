@@ -7,6 +7,7 @@ import com.ibrahim.DBPulse.exceptions.DuplicateResourceException;
 import com.ibrahim.DBPulse.exceptions.ResourceNotFoundException;
 import com.ibrahim.DBPulse.mappers.EntityMapper;
 import com.ibrahim.DBPulse.repositories.ProductRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -24,6 +25,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    @Timed(value = "dbpulse.products.create", description = "Time to create a product")
     public ProductResponse createProduct(ProductRequest request) {
         log.info("Creating new product with SKU: {}", request.getSku());
 
@@ -74,6 +76,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Timed(value = "dbpulse.products.update", description = "Time to update a product")
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         log.info("Updating product with ID: {}", id);
 

@@ -13,6 +13,8 @@ import com.ibrahim.DBPulse.exceptions.ResourceNotFoundException;
 import com.ibrahim.DBPulse.repositories.ClientRepository;
 import com.ibrahim.DBPulse.repositories.OrderRepository;
 import com.ibrahim.DBPulse.repositories.ProductRepository;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,14 @@ public class OrderService {
         private final OrderRepository orderRepository;
         private final ClientRepository clientRepository;
         private final ProductRepository productRepository;
+        private final Counter orderCreatedCounter;
+        private final Counter revenueCounter;
 
+        /**
+         * Create a new order.
+         * Monitored with @Timed for performance tracking.
+         */
+        @Timed(value = "dbpulse.orders.create", description = "Time taken to create an order")
         public OrderResponse createOrder(OrderRequest request) {
                 log.info("Creating new order for client ID: {}", request.getClientId());
 
@@ -78,6 +87,11 @@ public class OrderService {
 
                 // Save order
                 Order savedOrder = orderRepository.save(order);
+
+                // Update metrics
+                orderCreatedCounter.increment();
+                revenueCounter.increment(savedOrder.getTotalAmount().doubleValue());
+
                 log.info("Order created successfully with order number: {}", savedOrder.getOrderNumber());
 
                 return mapToOrderResponse(savedOrder);

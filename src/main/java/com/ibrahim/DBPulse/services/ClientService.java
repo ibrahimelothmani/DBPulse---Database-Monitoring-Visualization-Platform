@@ -7,6 +7,7 @@ import com.ibrahim.DBPulse.exceptions.DuplicateResourceException;
 import com.ibrahim.DBPulse.exceptions.ResourceNotFoundException;
 import com.ibrahim.DBPulse.mappers.EntityMapper;
 import com.ibrahim.DBPulse.repositories.ClientRepository;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -24,6 +25,7 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
 
+    @Timed(value = "dbpulse.clients.create", description = "Time to create a client")
     public ClientResponse createClient(ClientRequest request) {
         log.info("Creating new client with email: {}", request.getEmail());
 
@@ -39,6 +41,7 @@ public class ClientService {
     }
 
     @Transactional(readOnly = true)
+    @Timed(value = "dbpulse.clients.get", description = "Time to retrieve a client")
     public ClientResponse getClientById(Long id) {
         log.info("Fetching client with ID: {}", id);
 
@@ -65,6 +68,7 @@ public class ClientService {
         return clientPage.map(EntityMapper::toResponse);
     }
 
+    @Timed(value = "dbpulse.clients.update", description = "Time to update a client")
     public ClientResponse updateClient(Long id, ClientRequest request) {
         log.info("Updating client with ID: {}", id);
 
