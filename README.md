@@ -317,14 +317,6 @@ If you find this project helpful, please consider giving it a star! ⭐
 
 ---
 
-## 📧 Contact
-
-- **Author**: Your Name
-- **Email**: your.email@example.com
-- **GitHub**: [@yourusername](https://github.com/yourusername)
-
----
-
 ## 🙏 Acknowledgments
 
 - Spring Boot team for excellent documentation
